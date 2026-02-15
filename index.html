@@ -4,16 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign in - Student Portal</title>
-  <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="page-center">
     <div class="card">
       <div class="logo">
-        <!-- Keep your Google logo SVG – it's perfect -->
         <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.14 1.53 7.56 2.8l5.5-5.5C33.64 3.6 29.22 1.5 24 1.5 14.98 1.5 7.2 6.68 3.44 14.24l6.66 5.18C11.84 13.3 17.42 9.5 24 9.5z"/>
           <path fill="#4285F4" d="M46.14 24.5c0-1.57-.14-3.08-.4-4.5H24v8.52h12.44c-.54 2.9-2.2 5.36-4.66 7.04l7.2 5.6c4.2-3.88 6.6-9.6 6.6-16.66z"/>
@@ -26,7 +25,7 @@
       <p class="subtitle">Use your Google Account</p>
 
       <form>
-        <input type="email" id="email" placeholder="Email or phone" autocomplete="email" required>
+        <input type="email" id="email" placeholder="Email or phone" autocomplete="email" required autofocus>
         <div class="error-message" id="emailError"></div>
 
         <a href="#" class="link">Forgot email?</a>
@@ -58,9 +57,8 @@
         return;
       }
 
-      // Very basic email check (you can improve later)
-      if (!email.includes("@")) {
-        error.textContent = "This doesn't look like an email";
+      if (!email.includes("@") || !email.includes(".")) {
+        error.textContent = "This doesn't look like a valid email";
         return;
       }
 
